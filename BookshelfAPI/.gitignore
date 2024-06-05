@@ -1,0 +1,31 @@
+# Ignore build output directories
+bin/
+obj/
+
+# User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider project files
+.idea/
+*.sln.iml
+
+# OS generated files #
+.DS_Store
+Thumbs.db
+
+# Visual Studio Code
+.vscode/
+
+# ASP.NET Core Secrets
+secrets.json
+
+# Package directories
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Logs
+logs/
+*.log
