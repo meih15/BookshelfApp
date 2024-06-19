@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using BookshelfAPI.Data;
 using BookshelfAPI.Models;
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace BookshelfAPI.Controllers
 {
@@ -20,14 +22,20 @@ namespace BookshelfAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ReadingLog>>> GetReadingLogs()
         {
-            return await _context.ReadingLogs.ToListAsync();
+            return await _context.ReadingLogs
+                .Include(rl => rl.Book)
+                .Include(rl => rl.User)
+                .ToListAsync();
         }
 
         // GET: api/ReadingLogs/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ReadingLog>> GetReadingLog(int id)
         {
-            var readingLog = await _context.ReadingLogs.FindAsync(id);
+            var readingLog = await _context.ReadingLogs
+                .Include(rl => rl.Book)
+                .Include(rl => rl.User)
+                .FirstOrDefaultAsync(rl => rl.Id == id);
 
             if (readingLog == null)
             {
@@ -73,6 +81,62 @@ namespace BookshelfAPI.Controllers
                     throw;
                 }
             }
+
+            return NoContent();
+        }
+
+        // PUT: api/ReadingLogs/5/start
+        [HttpPut("{id}/start")]
+        public async Task<IActionResult> StartReading(int id)
+        {
+            var readingLog = await _context.ReadingLogs.FindAsync(id);
+            if (readingLog == null)
+            {
+                return NotFound();
+            }
+
+            readingLog.Status = ReadingStatus.CurrentlyReading;
+            readingLog.StartDate = DateTime.UtcNow;
+
+            _context.Entry(readingLog).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // PUT: api/ReadingLogs/5/complete
+        [HttpPut("{id}/complete")]
+        public async Task<IActionResult> CompleteReading(int id)
+        {
+            var readingLog = await _context.ReadingLogs.FindAsync(id);
+            if (readingLog == null)
+            {
+                return NotFound();
+            }
+
+            readingLog.Status = ReadingStatus.Finished;
+            readingLog.EndDate = DateTime.UtcNow;
+
+            _context.Entry(readingLog).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // PUT: api/ReadingLogs/5/drop
+        [HttpPut("{id}/drop")]
+        public async Task<IActionResult> DropReading(int id)
+        {
+            var readingLog = await _context.ReadingLogs.FindAsync(id);
+            if (readingLog == null)
+            {
+                return NotFound();
+            }
+
+            readingLog.Status = ReadingStatus.Dropped;
+
+            _context.Entry(readingLog).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
