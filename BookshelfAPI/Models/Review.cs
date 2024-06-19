@@ -15,9 +15,9 @@ namespace BookshelfAPI.Models
         [ForeignKey("BookId")]
         public Book? Book { get; set; }
 
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty; // Ensure non-nullable
 
         [ForeignKey("UserId")]
-        public User? User { get; set; }
+        public ApplicationUser? User { get; set; }
     }
 }

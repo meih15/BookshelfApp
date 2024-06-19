@@ -2,28 +2,32 @@ using Microsoft.AspNetCore.Mvc;
 using BookshelfAPI.Data;
 using BookshelfAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BookshelfAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class ApplicationUsersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public UsersController(ApplicationDbContext context)
+        public ApplicationUsersController(ApplicationDbContext context)
         {
             _context = context;
         }
 
+        // GET: api/ApplicationUsers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
         }
 
+        // GET: api/ApplicationUsers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<ApplicationUser>> GetUser(string id)
         {
             var user = await _context.Users.FindAsync(id);
 
@@ -35,17 +39,9 @@ namespace BookshelfAPI.Controllers
             return user;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
-        {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
-        }
-
+        // PUT: api/ApplicationUsers/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(string id, ApplicationUser user)
         {
             if (id != user.Id)
             {
@@ -73,8 +69,19 @@ namespace BookshelfAPI.Controllers
             return NoContent();
         }
 
+        // POST: api/ApplicationUsers
+        [HttpPost]
+        public async Task<ActionResult<ApplicationUser>> PostUser(ApplicationUser user)
+        {
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+        }
+
+        // DELETE: api/ApplicationUsers/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
@@ -88,7 +95,7 @@ namespace BookshelfAPI.Controllers
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(string id)
         {
             return _context.Users.Any(e => e.Id == id);
         }
