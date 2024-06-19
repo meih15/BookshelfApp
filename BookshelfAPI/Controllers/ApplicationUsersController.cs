@@ -48,7 +48,23 @@ namespace BookshelfAPI.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            var existingUser = await _context.Users.FindAsync(id);
+            if (existingUser == null)
+            {
+                return NotFound();
+            }
+
+            // Update fields
+            existingUser.FirstName = user.FirstName;
+            existingUser.LastName = user.LastName;
+            existingUser.Email = user.Email;
+            existingUser.UserName = user.UserName;
+            // existingUser.PhoneNumber = user.PhoneNumber;
+            // existingUser.CustomField1 = user.CustomField1;
+            // existingUser.CustomField2 = user.CustomField2;
+            // ...
+
+            _context.Entry(existingUser).State = EntityState.Modified;
 
             try
             {
@@ -67,16 +83,6 @@ namespace BookshelfAPI.Controllers
             }
 
             return NoContent();
-        }
-
-        // POST: api/ApplicationUsers
-        [HttpPost]
-        public async Task<ActionResult<ApplicationUser>> PostUser(ApplicationUser user)
-        {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
 
         // DELETE: api/ApplicationUsers/5
